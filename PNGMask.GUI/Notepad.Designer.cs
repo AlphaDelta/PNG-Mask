@@ -62,8 +62,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtText.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtText.Location = new System.Drawing.Point(6, 7);
+            this.txtText.MaxLength = 1000000;
             this.txtText.Multiline = true;
             this.txtText.Name = "txtText";
+            this.txtText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtText.Size = new System.Drawing.Size(370, 232);
             this.txtText.TabIndex = 7;
             // 

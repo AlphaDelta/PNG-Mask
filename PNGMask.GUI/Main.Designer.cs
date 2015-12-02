@@ -50,9 +50,9 @@
             this.lblNoFile = new System.Windows.Forms.Label();
             this.imgOriginal = new System.Windows.Forms.PictureBox();
             this.tabExtracted = new System.Windows.Forms.TabPage();
+            this.txtHidden = new System.Windows.Forms.TextBox();
             this.hexHidden = new Clearbytes.HexView();
             this.imgHidden = new System.Windows.Forms.PictureBox();
-            this.txtHidden = new System.Windows.Forms.TextBox();
             this.menu.SuspendLayout();
             this.tabs.SuspendLayout();
             this.tabOriginal.SuspendLayout();
@@ -261,6 +261,18 @@
             this.tabExtracted.Text = "Extracted file";
             this.tabExtracted.UseVisualStyleBackColor = true;
             // 
+            // txtHidden
+            // 
+            this.txtHidden.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtHidden.Location = new System.Drawing.Point(221, 6);
+            this.txtHidden.Multiline = true;
+            this.txtHidden.Name = "txtHidden";
+            this.txtHidden.ReadOnly = true;
+            this.txtHidden.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.txtHidden.Size = new System.Drawing.Size(100, 100);
+            this.txtHidden.TabIndex = 2;
+            this.txtHidden.Visible = false;
+            // 
             // hexHidden
             // 
             this.hexHidden.BackColor = System.Drawing.SystemColors.Window;
@@ -282,17 +294,6 @@
             this.imgHidden.TabIndex = 0;
             this.imgHidden.TabStop = false;
             this.imgHidden.Visible = false;
-            // 
-            // txtHidden
-            // 
-            this.txtHidden.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.txtHidden.Location = new System.Drawing.Point(221, 6);
-            this.txtHidden.Multiline = true;
-            this.txtHidden.Name = "txtHidden";
-            this.txtHidden.ReadOnly = true;
-            this.txtHidden.Size = new System.Drawing.Size(100, 100);
-            this.txtHidden.TabIndex = 2;
-            this.txtHidden.Visible = false;
             // 
             // Main
             // 
