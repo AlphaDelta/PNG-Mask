@@ -43,8 +43,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="About.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About.Designer.cs">
+      <DependentUpon>About.cs</DependentUpon>
+    </Compile>
     <Compile Include="HexView.cs">
       <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ImageListEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ImageListEditor.Designer.cs">
+      <DependentUpon>ImageListEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinkEntryEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LinkEntryEditor.Designer.cs">
+      <DependentUpon>LinkEntryEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LinkIndexBuilder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LinkIndexBuilder.Designer.cs">
+      <DependentUpon>LinkIndexBuilder.cs</DependentUpon>
     </Compile>
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
@@ -67,6 +91,18 @@
     <Compile Include="SelectProvider.Designer.cs">
       <DependentUpon>SelectProvider.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="About.resx">
+      <DependentUpon>About.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImageListEditor.resx">
+      <DependentUpon>ImageListEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LinkEntryEditor.resx">
+      <DependentUpon>LinkEntryEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LinkIndexBuilder.resx">
+      <DependentUpon>LinkIndexBuilder.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Main.resx">
       <DependentUpon>Main.cs</DependentUpon>
     </EmbeddedResource>
@@ -103,6 +139,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="img\128.png" />
     <Content Include="img\icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

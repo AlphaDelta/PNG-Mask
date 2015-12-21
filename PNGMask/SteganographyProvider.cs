@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Text;
 
@@ -44,19 +45,23 @@ namespace PNGMask
 
         public static string AskPassword(bool CanPasswordBeEmpty = true)
         {
-            PasswordEntry entry = new PasswordEntry(CanPasswordBeEmpty);
-            entry.ShowDialog();
+            using (PasswordEntry entry = new PasswordEntry(CanPasswordBeEmpty))
+            {
+                entry.ShowDialog();
 
-            if (entry.Canceled) return null;
+                if (entry.Canceled) return null;
 
-            return entry.Password;
+                return entry.Password;
+            }
         }
 
         static byte[]
-        HEADER_TXT = { 0x54, 0x58, 0x54 },
-        HEADER_BIN = { 0x42, 0x49, 0x4E },
-        HEADER_IMG = { 0x49, 0x4D, 0x47 },
-        HEADER_IND = { 0x49, 0x4E, 0x44 };
+        HEADER_TXT = { 0x54, 0x58, 0x54 }, //Text
+        HEADER_BIN = { 0x42, 0x49, 0x4E }, //Binary
+        HEADER_IMG = { 0x49, 0x4D, 0x47 }, //Image
+        HEADER_IDX = { 0x49, 0x44, 0x58 }, //Index
+        HEADER_IDI = { 0x49, 0x44, 0x49 }, //Index - Image array (4b image length, < image data)
+        HEADER_IDL = { 0x49, 0x44, 0x4C }; //Index - Link data array (4b image index, 4b title length, < title string, 4b URL length, < URL string)
 
         Random rnd = new Random();
         public void Imprint(DataType type, object obj)
@@ -102,7 +107,69 @@ namespace PNGMask
                     temp.AddRange(data);
                     break;
                 case DataType.Index:
-                    throw new NotImplementedException();
+                    LinkIndex index = (LinkIndex)obj;
+                    byte[] buffer;
+                    using (MemoryStream stream = new MemoryStream())
+                    {
+                        /* Image array serialization */
+                        using (MemoryStream imgliststream = new MemoryStream())
+                        {
+                            foreach (Image img in index.Images)
+                                using (MemoryStream imgstream = new MemoryStream())
+                                {
+                                    img.Save(imgstream, System.Drawing.Imaging.ImageFormat.Png);
+
+                                    buffer = BitConverter.GetBytes((int)imgstream.Length);
+                                    imgliststream.Write(buffer, 0, buffer.Length);
+                                    buffer = imgstream.ToArray();
+                                    imgliststream.Write(buffer, 0, buffer.Length);
+                                }
+
+                            if (imgliststream.Length > 0)
+                            {
+                                buffer = BitConverter.GetBytes((int)imgliststream.Length);
+                                stream.Write(buffer, 0, buffer.Length);
+                                stream.Write(HEADER_IDI, 0, HEADER_IDI.Length);
+                                buffer = imgliststream.ToArray();
+                                stream.Write(buffer, 0, buffer.Length);
+                            }
+                        }
+
+                        /* Link item array serialization */
+                        using (MemoryStream linkliststream = new MemoryStream())
+                        {
+                            foreach (LinkIndexRow row in index.Rows)
+                            {
+                                //Image index (4b integer)
+                                buffer = BitConverter.GetBytes(row.ImageIndex);
+                                linkliststream.Write(buffer, 0, buffer.Length);
+
+                                //Title (4b integer (string length), < string)
+                                byte[] charbuffer = Encoding.UTF8.GetBytes(row.Title);
+                                buffer = BitConverter.GetBytes(charbuffer.Length);
+                                linkliststream.Write(buffer, 0, buffer.Length);
+                                linkliststream.Write(charbuffer, 0, charbuffer.Length);
+
+                                //Title (4b integer (string length), < string)
+                                charbuffer = Encoding.UTF8.GetBytes(row.URL);
+                                buffer = BitConverter.GetBytes(charbuffer.Length);
+                                linkliststream.Write(buffer, 0, buffer.Length);
+                                linkliststream.Write(charbuffer, 0, charbuffer.Length);
+                            }
+
+                            buffer = BitConverter.GetBytes((int)linkliststream.Length);
+                            stream.Write(buffer, 0, buffer.Length);
+                            stream.Write(HEADER_IDL, 0, HEADER_IDL.Length);
+                            buffer = linkliststream.ToArray();
+                            stream.Write(buffer, 0, buffer.Length);
+                        }
+
+                        data = stream.ToArray();
+                    }
+                    temp.AddRange(BitConverter.GetBytes(data.Length));
+                    temp.AddRange(HEADER_IDX);
+                    temp.AddRange(data);
+                    break;
                 default:
                     throw new NotImplementedException();
             }
@@ -150,6 +217,68 @@ namespace PNGMask
                         img = System.Drawing.Image.FromStream(ms);
                     data = img; //Must be disposed by caller
                     return DataType.Image;
+                case "IDX":
+                    using (MemoryStream stream = new MemoryStream(ndata))
+                    {
+                        LinkIndex lindex = new LinkIndex();
+
+                        byte[] ibuffer = new byte[4], sbuffer = new byte[3];
+                        do
+                        {
+                            if (stream.Read(ibuffer, 0, 4) < 4) throw new PNGMaskException("IDX chunk is corrupt");
+                            uint len = BitConverter.ToUInt32(ibuffer, 0);
+
+                            if (stream.Read(sbuffer, 0, 3) < 3) throw new PNGMaskException("IDX chunk is corrupt");
+                            string chunkname = Encoding.ASCII.GetString(sbuffer);
+
+                            byte[] dbuffer = new byte[len];
+                            if (stream.Read(dbuffer, 0, (int)len) < (int)len) throw new PNGMaskException("IDX chunk is corrupt");
+                            using (MemoryStream ms = new MemoryStream(dbuffer))
+                            {
+                                if (chunkname == "IDI")
+                                {
+                                    do
+                                    {
+                                        if (ms.Read(ibuffer, 0, 4) < 4) throw new PNGMaskException("IDI chunk is corrupt");
+                                        int clen = BitConverter.ToInt32(ibuffer, 0);
+
+                                        byte[] imgbuffer = new byte[clen];
+                                        if (ms.Read(imgbuffer, 0, clen) < clen) throw new PNGMaskException("IDI chunk is corrupt");
+
+                                        using (MemoryStream imgstream = new MemoryStream(imgbuffer))
+                                            lindex.Images.Add(Image.FromStream(imgstream));
+                                    } while (ms.Position < ms.Length - 1);
+                                }
+                                else if (chunkname == "IDL")
+                                {
+                                    do
+                                    {
+                                        if (ms.Read(ibuffer, 0, 4) < 4) throw new PNGMaskException("IDL chunk is corrupt");
+                                        int imgindex = BitConverter.ToInt32(ibuffer, 0);
+
+                                        if (ms.Read(ibuffer, 0, 4) < 4) throw new PNGMaskException("IDL chunk is corrupt");
+                                        int slen = BitConverter.ToInt32(ibuffer, 0);
+
+                                        byte[] strbuffer = new byte[slen];
+                                        if (ms.Read(strbuffer, 0, slen) < slen) throw new PNGMaskException("IDL chunk is corrupt");
+                                        string title = Encoding.UTF8.GetString(strbuffer);
+
+                                        if (ms.Read(ibuffer, 0, 4) < 4) throw new PNGMaskException("IDL chunk is corrupt");
+                                        slen = BitConverter.ToInt32(ibuffer, 0);
+
+                                        strbuffer = new byte[slen];
+                                        if (ms.Read(strbuffer, 0, slen) < slen) throw new PNGMaskException("IDL chunk is corrupt");
+                                        string url = Encoding.UTF8.GetString(strbuffer);
+
+                                        lindex.Rows.Add(new LinkIndexRow(imgindex, title, url));
+                                    } while (ms.Position < ms.Length - 1);
+                                }
+                            }
+                        } while (stream.Position < stream.Length - 1);
+
+                        data = lindex;
+                    }
+                    return DataType.Index;
                 default:
                     return DataType.Binary;
             }

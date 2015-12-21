@@ -75,7 +75,7 @@
             this.txtPassword.Location = new System.Drawing.Point(74, 46);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Size = new System.Drawing.Size(396, 20);
-            this.txtPassword.TabIndex = 3;
+            this.txtPassword.TabIndex = 0;
             this.txtPassword.UseSystemPasswordChar = true;
             // 
             // label1
@@ -93,7 +93,7 @@
             this.chkShowPassword.Location = new System.Drawing.Point(74, 72);
             this.chkShowPassword.Name = "chkShowPassword";
             this.chkShowPassword.Size = new System.Drawing.Size(101, 17);
-            this.chkShowPassword.TabIndex = 5;
+            this.chkShowPassword.TabIndex = 1;
             this.chkShowPassword.Text = "Show password";
             this.chkShowPassword.UseVisualStyleBackColor = true;
             this.chkShowPassword.CheckedChanged += new System.EventHandler(this.chkShowPassword_CheckedChanged);

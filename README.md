@@ -12,7 +12,8 @@ PNG Mask is a steganography tool for Windows to hide data in PNG files.
 
 ## Test Images
 
-| Image        | [<img src="https://i.imgur.com/xmXZNK9.png" />](https://i.imgur.com/xmXZNK9.png) | [<img src="https://i.imgur.com/RhIqvQO.png" />](https://i.imgur.com/RhIqvQO.png) | [<img src="https://i.imgur.com/5z0gEge.png" />](https://i.imgur.com/u0h1VSK.png) |
-|--------------|------------------------|------------------------|---------------------------------|
-| **Password** | *None*                 | *None*                 | *None*                          |
-| **Type**     | Hidden image (XOR EOF) | Hidden text (XOR tEXt) | Hidden binary (WEBM) (XOR IDAT) |
+| Image         | [<img src="https://i.imgur.com/xmXZNK9.png" />](https://i.imgur.com/xmXZNK9.png) | [<img src="https://i.imgur.com/RhIqvQO.png" />](https://i.imgur.com/RhIqvQO.png) | [<img src="https://i.imgur.com/5z0gEge.png" />](https://i.imgur.com/u0h1VSK.png) | [<img src="https://i.imgur.com/8as6XyR.png" />](https://i.imgur.com/8as6XyR.png) |
+|---------------|--------------|-------------|----------------------|----------------------|
+| **Password**  | *None*       | *None*      | *None*               | ABC                  |
+| **Data Type** | Hidden image | Hidden text | Hidden binary (WEBM) | Hidden link index    |
+| **Method**    | XOR EOF      | XOR tEXt    | XOR IDAT             | XOR EOF              |

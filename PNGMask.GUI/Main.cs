@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -50,9 +51,50 @@ namespace PNGMask.GUI
             imgHidden.Dock = DockStyle.Fill;
             hexHidden.Dock = DockStyle.Fill;
             txtHidden.Dock = DockStyle.Fill;
+            listHidden.Dock = DockStyle.Fill;
 
             imgOriginal.Resize += imghandler;
             imgHidden.Resize += imghandler;
+
+            this.ResizeBegin += delegate { listHidden.Scrollable = false; };
+            this.Resize += delegate { columnHeader1.Width = listHidden.Width - 4; };
+            this.ResizeEnd += delegate { listHidden.Scrollable = true; };
+
+
+            ContextMenuStrip cms = new ContextMenuStrip();
+
+            ToolStripMenuItem mi1 = new ToolStripMenuItem("Open link");
+            EventHandler openlink = delegate
+            {
+                if (listHidden.SelectedIndices.Count < 1) return;
+
+                Process.Start(listHidden.SelectedItems[0].SubItems[1].Text);
+            };
+            mi1.Click += openlink;
+            cms.Items.Add(mi1);
+
+            ToolStripMenuItem mi2 = new ToolStripMenuItem("Copy link location");
+            mi2.Click += delegate
+            {
+                if (listHidden.SelectedIndices.Count < 1) return;
+
+                Clipboard.SetText(listHidden.SelectedItems[0].SubItems[1].Text);
+            };
+            cms.Items.Add(mi2);
+
+            listHidden.ContextMenuStrip = cms;
+
+            listHidden.DoubleClick += openlink;
+            listHidden.KeyDown += delegate(object sender, KeyEventArgs e) { if (e.KeyCode == Keys.Enter) openlink(null, null); };
+            listHidden.MouseMove += delegate(object sender, MouseEventArgs e)
+            {
+                //Point local = listHidden.PointToClient(e.Location);
+                ListViewItem item = listHidden.GetItemAt(e.X, e.Y);
+
+                if (item == null) lblLink.Text = "None";
+                else lblLink.Text = item.SubItems[1].Text;
+            };
+            listHidden.MouseLeave += delegate { lblLink.Text = "None"; };
         }
 
         string OpenFileDialog(string filter = null)
@@ -73,6 +115,14 @@ namespace PNGMask.GUI
             imgHidden.Visible = false;
             hexHidden.Visible = false;
             txtHidden.Visible = false;
+            listHidden.Visible = false;
+            lblLink.Visible = false;
+
+            listHidden.Items.Clear();
+            if (listHidden.SmallImageList != null) listHidden.SmallImageList.Dispose();
+            if (listHidden.LargeImageList != null) listHidden.LargeImageList.Dispose();
+            listHidden.SmallImageList = null;
+            listHidden.LargeImageList = null;
 
             switch (t)
             {
@@ -95,6 +145,23 @@ namespace PNGMask.GUI
                     txtHidden.Visible = true;
 
                     tabs.SelectedIndex = 1;
+                    break;
+                case DataType.Index:
+                    LinkIndex index = (LinkIndex)data;
+                    ImageList imglist = new ImageList() { ImageSize = new Size(32, 32), ColorDepth = ColorDepth.Depth32Bit };
+
+                    imglist.Images.AddRange(index.Images.ToArray());
+
+                    listHidden.SmallImageList = imglist;
+                    listHidden.LargeImageList = imglist;
+
+                    foreach (LinkIndexRow row in index.Rows)
+                        listHidden.Items.Add(new ListViewItem(new string[] { row.Title, row.URL }, row.ImageIndex));
+
+                    listHidden.Visible = true;
+                    lblLink.Visible = true;
+                    tabs.SelectedIndex = 1;
+                    columnHeader1.Width = listHidden.Width - 4;
                     break;
             }
         }
@@ -156,9 +223,11 @@ namespace PNGMask.GUI
             Provider pr = null;
             if (providers.Count > 0)
             {
-                SelectProvider prov = new SelectProvider(providers.ToArray());
-                prov.ShowDialog();
-                pr = prov.SelectedProvider;
+                using (SelectProvider prov = new SelectProvider(providers.ToArray()))
+                {
+                    prov.ShowDialog();
+                    pr = prov.SelectedProvider;
+                }
             }
             providers = null;
 
@@ -219,9 +288,11 @@ namespace PNGMask.GUI
         #region menuActionInject
         Provider GetProvider()
         {
-            SelectProvider sp = new SelectProvider(Program.AllProviders);
-            sp.ShowDialog();
-            return sp.SelectedProvider;
+            using (SelectProvider sp = new SelectProvider(Program.AllProviders))
+            {
+                sp.ShowDialog();
+                return sp.SelectedProvider;
+            }
         }
 
         private void menuActionInjectImage_Click(object sender, EventArgs e)
@@ -249,15 +320,18 @@ namespace PNGMask.GUI
 
         private void menuActionInjectText_Click(object sender, EventArgs e)
         {
-            Notepad np = new Notepad();
-            np.ShowDialog();
-            if (np.Canceled) return;
+            string data;
+            using (Notepad np = new Notepad())
+            {
+                np.ShowDialog();
+                if (np.Canceled) return;
+                data = np.TextData;
+            }
 
             Provider prov = GetProvider();
             if (prov == null) return;
 
             provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal);
-            string data = np.Text;
             provider.Imprint(DataType.Text, data);
 
             DisposeHidden();
@@ -296,7 +370,51 @@ namespace PNGMask.GUI
 
         private void menuActionInjectIndex_Click(object sender, EventArgs e)
         {
+            ImageList imgs;
+            ListViewItem[] rows;
+            using (LinkIndexBuilder lib = new LinkIndexBuilder())
+            {
+                lib.ShowDialog();
+                if (lib.Canceled) return;
 
+                imgs = lib.imglist;
+                rows = lib.rows;
+            }
+
+            if (rows.Length < 1) return;
+
+            List<string> keys = new List<string>();
+            LinkIndex index = new LinkIndex();
+            foreach (ListViewItem lvi in rows)
+            {
+                int i = -1;
+                if (!keys.Contains(lvi.ImageKey) && imgs.Images.ContainsKey(lvi.ImageKey))
+                {
+                    keys.Add(lvi.ImageKey);
+                    index.Images.Add(imgs.Images[lvi.ImageKey]);
+                    i = index.Images.Count - 1;
+                }
+                if (i < 0)
+                    i = keys.IndexOf(lvi.ImageKey);
+
+                index.Rows.Add(new LinkIndexRow(i, lvi.SubItems[0].Text, lvi.SubItems[1].Text));
+            }
+
+            Provider prov = GetProvider();
+            if (prov == null) return;
+
+            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal);
+            provider.Imprint(DataType.Index, index);
+
+            DisposeHidden();
+
+            hidden = index;
+            hiddent = DataType.Index;
+
+            SetHidden(hiddent, hidden);
+
+            menuFileSave.Enabled = true;
+            menuActionDumpHidden.Enabled = true;
         }
         #endregion
 
@@ -373,7 +491,8 @@ namespace PNGMask.GUI
 
         private void menuHelpAbout_Click(object sender, EventArgs e)
         {
-
+            using (About abt = new About())
+                abt.ShowDialog();
         }
     }
 }

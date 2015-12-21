@@ -50,9 +50,12 @@
             this.lblNoFile = new System.Windows.Forms.Label();
             this.imgOriginal = new System.Windows.Forms.PictureBox();
             this.tabExtracted = new System.Windows.Forms.TabPage();
+            this.lblLink = new System.Windows.Forms.Label();
+            this.listHidden = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.txtHidden = new System.Windows.Forms.TextBox();
-            this.hexHidden = new Clearbytes.HexView();
             this.imgHidden = new System.Windows.Forms.PictureBox();
+            this.hexHidden = new Clearbytes.HexView();
             this.menu.SuspendLayout();
             this.tabs.SuspendLayout();
             this.tabOriginal.SuspendLayout();
@@ -250,9 +253,11 @@
             // 
             // tabExtracted
             // 
+            this.tabExtracted.Controls.Add(this.lblLink);
+            this.tabExtracted.Controls.Add(this.listHidden);
             this.tabExtracted.Controls.Add(this.txtHidden);
-            this.tabExtracted.Controls.Add(this.hexHidden);
             this.tabExtracted.Controls.Add(this.imgHidden);
+            this.tabExtracted.Controls.Add(this.hexHidden);
             this.tabExtracted.Location = new System.Drawing.Point(4, 22);
             this.tabExtracted.Name = "tabExtracted";
             this.tabExtracted.Padding = new System.Windows.Forms.Padding(3);
@@ -260,6 +265,44 @@
             this.tabExtracted.TabIndex = 1;
             this.tabExtracted.Text = "Extracted file";
             this.tabExtracted.UseVisualStyleBackColor = true;
+            // 
+            // lblLink
+            // 
+            this.lblLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.lblLink.AutoSize = true;
+            this.lblLink.BackColor = System.Drawing.SystemColors.ControlDark;
+            this.lblLink.ForeColor = System.Drawing.SystemColors.ControlLightLight;
+            this.lblLink.Location = new System.Drawing.Point(3, 263);
+            this.lblLink.Name = "lblLink";
+            this.lblLink.Padding = new System.Windows.Forms.Padding(2);
+            this.lblLink.Size = new System.Drawing.Size(37, 17);
+            this.lblLink.TabIndex = 4;
+            this.lblLink.Text = "None";
+            this.lblLink.Visible = false;
+            // 
+            // listHidden
+            // 
+            this.listHidden.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.listHidden.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1});
+            this.listHidden.FullRowSelect = true;
+            this.listHidden.GridLines = true;
+            this.listHidden.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
+            this.listHidden.Location = new System.Drawing.Point(327, 6);
+            this.listHidden.MultiSelect = false;
+            this.listHidden.Name = "listHidden";
+            this.listHidden.Size = new System.Drawing.Size(100, 100);
+            this.listHidden.TabIndex = 3;
+            this.listHidden.UseCompatibleStateImageBehavior = false;
+            this.listHidden.View = System.Windows.Forms.View.Details;
+            this.listHidden.Visible = false;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Link";
+            this.columnHeader1.Width = 272;
             // 
             // txtHidden
             // 
@@ -273,16 +316,6 @@
             this.txtHidden.TabIndex = 2;
             this.txtHidden.Visible = false;
             // 
-            // hexHidden
-            // 
-            this.hexHidden.BackColor = System.Drawing.SystemColors.Window;
-            this.hexHidden.Location = new System.Drawing.Point(115, 6);
-            this.hexHidden.Name = "hexHidden";
-            this.hexHidden.Size = new System.Drawing.Size(100, 100);
-            this.hexHidden.TabIndex = 1;
-            this.hexHidden.Text = "hexHidden";
-            this.hexHidden.Visible = false;
-            // 
             // imgHidden
             // 
             this.imgHidden.BackColor = System.Drawing.SystemColors.Control;
@@ -294,6 +327,16 @@
             this.imgHidden.TabIndex = 0;
             this.imgHidden.TabStop = false;
             this.imgHidden.Visible = false;
+            // 
+            // hexHidden
+            // 
+            this.hexHidden.BackColor = System.Drawing.SystemColors.Window;
+            this.hexHidden.Location = new System.Drawing.Point(115, 6);
+            this.hexHidden.Name = "hexHidden";
+            this.hexHidden.Size = new System.Drawing.Size(100, 100);
+            this.hexHidden.TabIndex = 1;
+            this.hexHidden.Text = "hexHidden";
+            this.hexHidden.Visible = false;
             // 
             // Main
             // 
@@ -348,6 +391,9 @@
         private System.Windows.Forms.PictureBox imgHidden;
         private Clearbytes.HexView hexHidden;
         private System.Windows.Forms.TextBox txtHidden;
+        public System.Windows.Forms.ListView listHidden;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.Label lblLink;
     }
 }
 
