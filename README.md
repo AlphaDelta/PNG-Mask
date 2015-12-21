@@ -6,7 +6,7 @@ PNG Mask is a steganography tool for Windows to hide data in PNG files.
 
 ## Features
 
-* Multiple stenography methods.
+* Multiple steganography methods.
 * Hides images, messages, binary files, and URL lists inside images.
 * Can password protect hidden files for security using an XOR one-time-pad.
 * Licensed under the [WTFPL](http://www.wtfpl.net/txt/copying/) allowing you to use, modify, and/or distribute any code or images from this project however you wish.
