@@ -7,25 +7,25 @@ namespace PNGMask.Providers
 {
     public sealed class XORIDAT : XOR
     {
-        public XORIDAT(Stream svector) : base(svector) { }
-        public XORIDAT(string fvector) : base(fvector) { }
-        public XORIDAT(byte[] bvector) : base(bvector) { }
+        public XORIDAT(Stream svector, bool find = true) : base(svector, find) { }
+        public XORIDAT(string fvector, bool find = true) : base(fvector, find) { }
+        public XORIDAT(byte[] bvector, bool find = true) : base(bvector, find) { }
 
-        public XORIDAT(PNG png)
+        public XORIDAT(PNG png, bool find = true)
         {
             image = png;
 
-            ProcessPNG();
+            ProcessPNG(find);
         }
 
-        public override void ProcessData(byte[] s)
+        public override void ProcessData(byte[] s, bool find = true)
         {
             base.ProcessData(s);
 
-            ProcessPNG();
+            ProcessPNG(find);
         }
 
-        void ProcessPNG()
+        void ProcessPNG(bool find = true)
         {
             foreach (PNGChunk chunk in image.Chunks)
                 if (chunk.Name == "IDAT")
@@ -35,23 +35,32 @@ namespace PNGMask.Providers
                 }
             if (key == null) throw new PNGMaskException("PNG has no IDAT chunk for the SteganographyProvider to process.");
 
-            bool skip = true;
-            foreach (PNGChunk chunk in image.Chunks)
-                if (chunk.Name == "IDAT")
-                {
-                    if (skip)
+            if (find)
+            {
+                PNGChunk pdata = default(PNGChunk);
+                bool skip = true, pdatafound = false;
+                foreach (PNGChunk chunk in image.Chunks)
+                    if (chunk.Name == "IDAT")
                     {
-                        skip = false;
-                        continue;
+                        if (skip)
+                        {
+                            skip = false;
+                            continue;
+                        }
+
+                        pdata = chunk;
+                        pdatafound = true;
                     }
 
-                    vector = (byte[])chunk.Data.Clone();
+                if (pdatafound)
+                {
+                    vector = (byte[])pdata.Data.Clone();
 
                     string pass = SteganographyProvider.AskPassword();
                     if (pass != null && pass.Length > 0)
                         PrepareKey(Encoding.UTF8.GetBytes(pass));
-                    break;
                 }
+            }
         }
 
         static byte[] PNG_IDAT_HEADER = { 0x49, 0x44, 0x41, 0x54 };

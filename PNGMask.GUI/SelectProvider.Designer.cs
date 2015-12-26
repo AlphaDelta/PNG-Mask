@@ -91,7 +91,7 @@
             this.Controls.Add(this.btnback);
             this.Name = "SelectProvider";
             this.ShowIcon = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Select Method";
             this.ResumeLayout(false);
 

@@ -218,7 +218,7 @@ namespace PNGMask.GUI
 
             if (hasEOF) providers.Add(Program.XOREOF);
             if (hasTXT) providers.Add(Program.XORTXT);
-            if (IDATs == 2) providers.Add(Program.XORIDAT);
+            if (IDATs > 1) providers.Add(Program.XORIDAT);
 
             Provider pr = null;
             if (providers.Count > 0)
@@ -234,7 +234,7 @@ namespace PNGMask.GUI
             if (pr == null) { provider = null; SetHidden(DataType.None, null); tabs.SelectedIndex = 0; }
             else
             {
-                provider = (SteganographyProvider)Activator.CreateInstance(pr.ProviderType, pngOriginal);
+                provider = (SteganographyProvider)Activator.CreateInstance(pr.ProviderType, pngOriginal, true);
 
                 DisposeHidden();
 
@@ -303,7 +303,7 @@ namespace PNGMask.GUI
             Provider prov = GetProvider();
             if (prov == null) return;
 
-            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal);
+            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal, false);
             byte[] img = File.ReadAllBytes(path);
             provider.Imprint(DataType.ImageBytes, img);
 
@@ -331,7 +331,7 @@ namespace PNGMask.GUI
             Provider prov = GetProvider();
             if (prov == null) return;
 
-            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal);
+            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal, false);
             provider.Imprint(DataType.Text, data);
 
             DisposeHidden();
@@ -353,7 +353,7 @@ namespace PNGMask.GUI
             Provider prov = GetProvider();
             if (prov == null) return;
 
-            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal);
+            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal, false);
             byte[] data = File.ReadAllBytes(path);
             provider.Imprint(DataType.Binary, data);
 
@@ -403,7 +403,7 @@ namespace PNGMask.GUI
             Provider prov = GetProvider();
             if (prov == null) return;
 
-            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal);
+            provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal, false);
             provider.Imprint(DataType.Index, index);
 
             DisposeHidden();

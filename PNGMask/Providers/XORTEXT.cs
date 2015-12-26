@@ -7,25 +7,25 @@ namespace PNGMask.Providers
 {
     public sealed class XORTEXT : XOR
     {
-        public XORTEXT(Stream svector) : base(svector) { }
-        public XORTEXT(string fvector) : base(fvector) { }
-        public XORTEXT(byte[] bvector) : base(bvector) { }
+        public XORTEXT(Stream svector, bool find = true) : base(svector, find) { }
+        public XORTEXT(string fvector, bool find = true) : base(fvector, find) { }
+        public XORTEXT(byte[] bvector, bool find = true) : base(bvector, find) { }
 
-        public XORTEXT(PNG png)
+        public XORTEXT(PNG png, bool find = true)
         {
             image = png;
 
-            ProcessPNG();
+            ProcessPNG(find);
         }
 
-        public override void ProcessData(byte[] s)
+        public override void ProcessData(byte[] s, bool find = true)
         {
             base.ProcessData(s);
 
-            ProcessPNG();
+            ProcessPNG(find);
         }
 
-        void ProcessPNG()
+        void ProcessPNG(bool find = true)
         {
             foreach (PNGChunk chunk in image.Chunks)
                 if (chunk.Name == "IDAT")
@@ -35,16 +35,19 @@ namespace PNGMask.Providers
                 }
             if (key == null) throw new PNGMaskException("PNG has no IDAT chunk for the SteganographyProvider to process.");
 
-            foreach (PNGChunk chunk in image.Chunks)
-                if (chunk.Name == "tEXt")
-                {
-                    vector = (byte[])chunk.Data.Clone();
+            if (find)
+            {
+                foreach (PNGChunk chunk in image.Chunks)
+                    if (chunk.Name == "tEXt")
+                    {
+                        vector = (byte[])chunk.Data.Clone();
 
-                    string pass = SteganographyProvider.AskPassword();
-                    if (pass != null && pass.Length > 0)
-                        PrepareKey(Encoding.UTF8.GetBytes(pass));
-                    break;
-                }
+                        string pass = SteganographyProvider.AskPassword();
+                        if (pass != null && pass.Length > 0)
+                            PrepareKey(Encoding.UTF8.GetBytes(pass));
+                        break;
+                    }
+            }
         }
 
         static byte[] PNG_TEXT_HEADER = { 0x74, 0x45, 0x58, 0x74 };

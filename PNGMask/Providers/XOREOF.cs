@@ -7,25 +7,25 @@ namespace PNGMask.Providers
 {
     public sealed class XOREOF : XOR
     {
-        public XOREOF(Stream svector) : base(svector) { }
-        public XOREOF(string fvector) : base(fvector) { }
-        public XOREOF(byte[] bvector) : base(bvector) { }
+        public XOREOF(Stream svector, bool find = true) : base(svector, find) { }
+        public XOREOF(string fvector, bool find = true) : base(fvector, find) { }
+        public XOREOF(byte[] bvector, bool find = true) : base(bvector, find) { }
 
-        public XOREOF(PNG png)
+        public XOREOF(PNG png, bool find = true)
         {
             image = png;
 
-            ProcessPNG();
+            ProcessPNG(find);
         }
 
-        public override void ProcessData(byte[] s)
+        public override void ProcessData(byte[] s, bool find = true)
         {
             base.ProcessData(s);
 
-            ProcessPNG();
+            ProcessPNG(find);
         }
 
-        void ProcessPNG()
+        void ProcessPNG(bool find = true)
         {
             foreach (PNGChunk chunk in image.Chunks)
                 if (chunk.Name == "IDAT")
@@ -35,14 +35,17 @@ namespace PNGMask.Providers
                 }
             if (key == null) throw new PNGMaskException("PNG has no IDAT chunk for the SteganographyProvider to process.");
 
-            PNGChunk eof = image.Chunks[image.Chunks.Count - 1];
-            if (eof.Name == "_EOF")
+            if (find)
             {
-                vector = (byte[])eof.Data.Clone();
+                PNGChunk eof = image.Chunks[image.Chunks.Count - 1];
+                if (eof.Name == "_EOF")
+                {
+                    vector = (byte[])eof.Data.Clone();
 
-                string pass = SteganographyProvider.AskPassword();
-                if (pass != null && pass.Length > 0)
-                    PrepareKey(Encoding.UTF8.GetBytes(pass));
+                    string pass = SteganographyProvider.AskPassword();
+                    if (pass != null && pass.Length > 0)
+                        PrepareKey(Encoding.UTF8.GetBytes(pass));
+                }
             }
         }
 

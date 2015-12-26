@@ -8,13 +8,13 @@ namespace PNGMask
     public abstract class XOR : SteganographyProvider
     {
         public XOR() { }
-        public XOR(Stream svector) : base(svector) { }
-        public XOR(string fvector) : base(fvector) { }
-        public XOR(byte[] bvector) : base(bvector) { }
+        public XOR(Stream svector, bool find = true) : base(svector, find) { }
+        public XOR(string fvector, bool find = true) : base(fvector, find) { }
+        public XOR(byte[] bvector, bool find = true) : base(bvector, find) { }
 
         protected byte[] key = null, vector = null;
         protected PNG image;
-        public override void ProcessData(byte[] s)
+        public override void ProcessData(byte[] s, bool find = true)
         {
             using (MemoryStream stream = new MemoryStream(s))
                 image = new PNG(stream);
