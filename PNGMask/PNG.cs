@@ -156,9 +156,19 @@ namespace PNGMask
         public void RemoveNonCritical()
         {
             List<PNGChunk> toremove = new List<PNGChunk>();
+            bool idatfound = false;
             foreach (PNGChunk chunk in Chunks)
+            {
                 if (!chunk.Critical)
                     toremove.Add(chunk);
+                else if (chunk.Name == "IDAT")
+                {
+                    if (idatfound == true)
+                        toremove.Add(chunk);
+                    else
+                        idatfound = true;
+                }
+            }
             foreach (PNGChunk chunk in toremove)
                 Chunks.Remove(chunk);
         }
