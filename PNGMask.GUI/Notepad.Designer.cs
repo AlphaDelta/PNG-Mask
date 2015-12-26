@@ -40,7 +40,7 @@
             this.btnOk.Location = new System.Drawing.Point(214, 258);
             this.btnOk.Name = "btnOk";
             this.btnOk.Size = new System.Drawing.Size(75, 23);
-            this.btnOk.TabIndex = 6;
+            this.btnOk.TabIndex = 1;
             this.btnOk.Text = "Ok";
             this.btnOk.UseVisualStyleBackColor = true;
             this.btnOk.Click += new System.EventHandler(this.btnOk_Click);
@@ -67,7 +67,7 @@
             this.txtText.Name = "txtText";
             this.txtText.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
             this.txtText.Size = new System.Drawing.Size(370, 232);
-            this.txtText.TabIndex = 7;
+            this.txtText.TabIndex = 0;
             // 
             // btnCancel
             // 
@@ -75,7 +75,7 @@
             this.btnCancel.Location = new System.Drawing.Point(295, 258);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
-            this.btnCancel.TabIndex = 8;
+            this.btnCancel.TabIndex = 2;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
