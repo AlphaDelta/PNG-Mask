@@ -11,6 +11,7 @@ namespace PNGMask
         public XOR(Stream svector, bool find = true) : base(svector, find) { }
         public XOR(string fvector, bool find = true) : base(fvector, find) { }
         public XOR(byte[] bvector, bool find = true) : base(bvector, find) { }
+        public XOR(PNG pngvector, bool find = true) : base(pngvector, find) { }
 
         protected byte[] key = null, vector = null;
         protected PNG image;

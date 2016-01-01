@@ -234,18 +234,27 @@ namespace PNGMask.GUI
             if (pr == null) { provider = null; SetHidden(DataType.None, null); tabs.SelectedIndex = 0; }
             else
             {
-                provider = (SteganographyProvider)Activator.CreateInstance(pr.ProviderType, pngOriginal, true);
+                try
+                {
+                    provider = (SteganographyProvider)Activator.CreateInstance(pr.ProviderType, pngOriginal, true);
 
-                DisposeHidden();
+                    DisposeHidden();
 
-                object data;
-                DataType t = provider.Extract(out data);
-                hidden = data;
-                SetHidden(t, data);
-                hiddent = t;
+                    object data;
+                    DataType t = provider.Extract(out data);
+                    hidden = data;
+                    SetHidden(t, data);
+                    hiddent = t;
 
-                if (t != DataType.None)
-                    menuActionDumpHidden.Enabled = true;
+                    if (t != DataType.None)
+                        menuActionDumpHidden.Enabled = true;
+                }
+                catch (InvalidPasswordException)
+                {
+                    provider = null; SetHidden(DataType.None, null); tabs.SelectedIndex = 0;
+
+                    MessageBox.Show(this, "The password you entered was incorrect.", "Incorrect Password", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
 
             tabs.Enabled = true;
@@ -275,7 +284,7 @@ namespace PNGMask.GUI
             using (FileStream fs = File.Open(file, FileMode.Create, FileAccess.Write, FileShare.Read))
                 provider.WriteToStream(fs);
 
-            MessageBox.Show("Injected image was saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Injected image was saved successfully.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void menuFileExit_Click(object sender, EventArgs e)
@@ -295,6 +304,25 @@ namespace PNGMask.GUI
             }
         }
 
+        void Imprint(DataType type, object data, DataType switchtype, object switchdata)
+        {
+            try
+            {
+                provider.Imprint(type, data);
+
+                DisposeHidden();
+
+                hidden = switchdata;
+                hiddent = switchtype;
+
+                SetHidden(hiddent, hidden);
+
+                menuFileSave.Enabled = true;
+                menuActionDumpHidden.Enabled = true;
+            }
+            catch (NotEnoughSpaceException ex) { MessageBox.Show(this, ex.Message, "Out of Space", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+        }
+
         private void menuActionInjectImage_Click(object sender, EventArgs e)
         {
             string path = OpenFileDialog("Image Files (*.png, *.jpg, *.jpeg, *.gif)|*.png;*.jpg;*.jpeg;*.gif");
@@ -305,17 +333,7 @@ namespace PNGMask.GUI
 
             provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal, false);
             byte[] img = File.ReadAllBytes(path);
-            provider.Imprint(DataType.ImageBytes, img);
-
-            DisposeHidden();
-
-            hidden = Image.FromFile(path);
-            hiddent = DataType.Image;
-
-            SetHidden(hiddent, hidden);
-
-            menuFileSave.Enabled = true;
-            menuActionDumpHidden.Enabled = true;
+            Imprint(DataType.ImageBytes, img, DataType.Image, Image.FromFile(path));
         }
 
         private void menuActionInjectText_Click(object sender, EventArgs e)
@@ -332,17 +350,7 @@ namespace PNGMask.GUI
             if (prov == null) return;
 
             provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal, false);
-            provider.Imprint(DataType.Text, data);
-
-            DisposeHidden();
-
-            hidden = data;
-            hiddent = DataType.Text;
-
-            SetHidden(hiddent, hidden);
-
-            menuFileSave.Enabled = true;
-            menuActionDumpHidden.Enabled = true;
+            Imprint(DataType.Text, data, DataType.Text, data);
         }
 
         private void menuActionInjectBinary_Click(object sender, EventArgs e)
@@ -355,17 +363,8 @@ namespace PNGMask.GUI
 
             provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal, false);
             byte[] data = File.ReadAllBytes(path);
-            provider.Imprint(DataType.Binary, data);
 
-            DisposeHidden();
-
-            hidden = data;
-            hiddent = DataType.Binary;
-
-            SetHidden(hiddent, hidden);
-
-            menuFileSave.Enabled = true;
-            menuActionDumpHidden.Enabled = true;
+            Imprint(DataType.Binary, data, DataType.Binary, data);
         }
 
         private void menuActionInjectIndex_Click(object sender, EventArgs e)
@@ -404,17 +403,7 @@ namespace PNGMask.GUI
             if (prov == null) return;
 
             provider = (SteganographyProvider)Activator.CreateInstance(prov.ProviderType, pngOriginal, false);
-            provider.Imprint(DataType.Index, index);
-
-            DisposeHidden();
-
-            hidden = index;
-            hiddent = DataType.Index;
-
-            SetHidden(hiddent, hidden);
-
-            menuFileSave.Enabled = true;
-            menuActionDumpHidden.Enabled = true;
+            Imprint(DataType.Index, index, DataType.Index, index);
         }
         #endregion
 
@@ -437,7 +426,7 @@ namespace PNGMask.GUI
             using (FileStream fs = File.Open(file, FileMode.Create, FileAccess.Write, FileShare.Read))
                 pngOriginal.WriteToStream(fs, true, true);
 
-            MessageBox.Show("Original image was successfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Original image was successfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private void menuActionDumpHidden_Click(object sender, EventArgs e)
@@ -485,7 +474,7 @@ namespace PNGMask.GUI
                     break;
             }
 
-            MessageBox.Show("Hidden data was successfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(this, "Hidden data was successfully extracted.", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
         #endregion
 

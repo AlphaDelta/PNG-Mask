@@ -63,6 +63,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.list.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1});
+            this.list.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.list.FullRowSelect = true;
             this.list.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.list.Items.AddRange(new System.Windows.Forms.ListViewItem[] {

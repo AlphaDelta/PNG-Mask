@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataType.cs" />
+    <Compile Include="Graphical.cs" />
     <Compile Include="LinkIndex.cs" />
     <Compile Include="LinkIndexRow.cs" />
     <Compile Include="ISAAC.cs" />
@@ -49,10 +50,11 @@
     </Compile>
     <Compile Include="PNG.cs" />
     <Compile Include="PNGChunk.cs" />
+    <Compile Include="Providers\ColorCrash.cs" />
     <Compile Include="Providers\XORIDAT.cs" />
     <Compile Include="Providers\XORTEXT.cs" />
     <Compile Include="XOR.cs" />
-    <Compile Include="PNGMaskException.cs" />
+    <Compile Include="PNGMaskExceptions.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

@@ -14,7 +14,7 @@ namespace PNGMask.GUI
         public static Provider[] AllProviders;
         public static Provider[] Providers = 
         {
-            
+            new Provider("Colorcrash", typeof(ColorCrash))
         };
 
         [STAThread]
