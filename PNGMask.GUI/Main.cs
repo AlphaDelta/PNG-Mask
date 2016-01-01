@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -124,6 +125,8 @@ namespace PNGMask.GUI
             listHidden.SmallImageList = null;
             listHidden.LargeImageList = null;
 
+            imgHidden.Image = null;
+
             switch (t)
             {
                 case DataType.Image:
@@ -168,6 +171,7 @@ namespace PNGMask.GUI
 
         void DisposeHidden()
         {
+            imgHidden.Image = null; //Necessary for imgHidden
             if (hidden != null && hidden is IDisposable)
                 ((IDisposable)hidden).Dispose();
         }
@@ -434,11 +438,28 @@ namespace PNGMask.GUI
             if (hidden == null || hiddent == DataType.None) return;
 
             SaveFileDialog sfd = new SaveFileDialog();
-            
+
+            ImageFormat imgformat = null;
+            Image img = null;
             switch (hiddent)
             {
                 case DataType.Image:
-                    sfd.Filter = "PNG File (*.png)|*.png";
+                    img = ((Image)hidden);
+                    if (img.RawFormat.Equals(ImageFormat.Png))
+                    {
+                        sfd.Filter = "PNG File (*.png)|*.png";
+                        imgformat = ImageFormat.Png;
+                    }
+                    else if (img.RawFormat.Equals(ImageFormat.Jpeg))
+                    {
+                        sfd.Filter = "JPEG File (*.jpg)|*.jpg";
+                        imgformat = ImageFormat.Jpeg;
+                    }
+                    else if (img.RawFormat.Equals(ImageFormat.Gif))
+                    {
+                        sfd.Filter = "GIF File (*.gif)|*.gif";
+                        imgformat = ImageFormat.Gif;
+                    }
                     break;
                 case DataType.Index:
                 case DataType.Text:
@@ -461,7 +482,7 @@ namespace PNGMask.GUI
             switch (hiddent)
             {
                 case DataType.Image:
-                    ((Image)hidden).Save(file, System.Drawing.Imaging.ImageFormat.Png);
+                    img.Save(file, imgformat);
                     break;
                 case DataType.Index:
 

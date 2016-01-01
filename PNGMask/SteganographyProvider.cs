@@ -213,8 +213,8 @@ namespace PNGMask
                     return DataType.Binary;
                 case "IMG":
                     System.Drawing.Image img;
-                    using (MemoryStream ms = new MemoryStream(ndata))
-                        img = System.Drawing.Image.FromStream(ms);
+                    MemoryStream ms2 = new MemoryStream(ndata); //JPEG and GIF need the stream to be open for some reason, don't know if GC cleans up after MemoryStreams
+                        img = System.Drawing.Image.FromStream(ms2);
                     data = img; //Must be disposed by caller
                     return DataType.Image;
                 case "IDX":
