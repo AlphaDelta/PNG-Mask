@@ -137,7 +137,18 @@ namespace PNGMask.Providers
         {
             j++;
 
-            if (bpp == 3) return;
+            if (bpp == 3)
+            {
+                if (padding < 1) return;
+
+                temp++;
+                if (temp >= LineWidth)
+                {
+                    temp = 0;
+                    j += padding;
+                }
+                return;
+            }
             
             temp++;
             if (temp > 2)

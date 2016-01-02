@@ -19,6 +19,7 @@ namespace PNGMask
         protected byte[] BitmapData;
         protected int bpp = 0;
         protected Size BitmapDimensions;
+        protected int LineWidth = 0, padding = 0;
         public override void ProcessData(byte[] s, bool find = true)
         {
             using (MemoryStream stream = new MemoryStream(s))
@@ -42,6 +43,12 @@ namespace PNGMask
                     Marshal.Copy(ptr, BitmapData, 0, bytes);
                 }
                 finally { bmp.UnlockBits(data); }
+
+                if (bpp == 3)
+                {
+                    LineWidth = bmp.Width * 3;
+                    padding = 4 - LineWidth % 4;
+                }
             }
         }
 
